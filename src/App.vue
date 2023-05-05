@@ -1,10 +1,12 @@
 <template>
     <div class="App">
         <div id="main" style="width: 600px; height: 400px"></div>
+        <button @click="increment">{{ time }}</button>
     </div>
 </template>
 
 <script setup lang="ts">
+import type { PCB } from './assets/pcb'
 import { ref, onMounted } from 'vue'
 //  按需引入 echarts
 import * as echarts from 'echarts'
@@ -20,58 +22,46 @@ function init1() {
     var option: EChartsOption
 
     option = {
-        xAxis: {
-            type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        legend: {},
+        tooltip: {},
+        dataset: {
+            dimensions: [
+                'product',
+                '2015',
+                '2016',
+                '2017'
+                // 'PCB',
+                // 'pid',
+                // 'state',
+                // 'serverTime',
+                // 'address',
+                // 'nowInfo',
+                // 'remainTime',
+                // 'interTime',
+                // 'managerInfo',
+                // 'lastTime'
+            ],
+            source: [{ product: 'Walnut Brownie', 2015: 72.4, 2016: 53.9, 2017: 39.1 }]
         },
-        yAxis: {
-            type: 'value'
-        },
+        xAxis: { type: 'category' },
+        yAxis: {},
+        // Declare several bar series, each will be mapped
+        // to a column of dataset.source by default.
         series: [
-            {
-                data: [150, 230, 224, 218, 135, 147, 260],
-                type: 'line'
-            }
+            //设置柱状图
+            { type: 'bar' },
+            { type: 'bar' },
+            { type: 'bar' }
+            // { type: 'bar' },
+            // { type: 'bar' },
+            // { type: 'bar' }
         ]
     }
-
     option && myChart.setOption(option)
 }
 
-class PCB {
-    pid: number //标识信息
-    state: string //状态
-    serverTime: number //运行时间
-    address: string //存储地址
-    nowInfo: string //现场信息
-    manageInfo: string //管理信息  记录下运行到的时间
-    remainTime: number
-    interTime: number
-    lastTime: number
-    constructor(
-        pid: number,
-        state: string,
-        serverTime: number,
-        address: string,
-        nowInfo: string,
-        manageInfo: string,
-        remainTime: number,
-        lastTime: number,
-        interTime: number
-    ) {
-        this.pid = pid
-        this.state = state
-        this.serverTime = serverTime
-        this.address = address
-        this.nowInfo = nowInfo
-        this.manageInfo = manageInfo
-        this.remainTime = remainTime
-        this.interTime = interTime
-        this.lastTime = lastTime
-    }
-}
+const time = ref(0)
 
-let time: number = 0
 let freeQueue: PCB[] = [
     {
         pid: 1,
@@ -129,6 +119,7 @@ let freeQueue: PCB[] = [
         lastTime: 0
     }
 ]
+
 let readyQueue: PCB[] = []
 let runningQueue: PCB[] = []
 let blockQueue: PCB[] = []
@@ -148,18 +139,22 @@ function createProcess(serverTime: number) {
 function runProcess() {
     let tmp: PCB = readyQueue.shift()!
     tmp.state = 'running'
-    tmp.interTime = time //进入队列的时间
+    tmp.interTime = time.value //进入队列的时间
     runningQueue.push(tmp)
 }
 
 function interrupt() {}
 
 function running() {
-    time++
+    time.value++
     runningQueue.forEach(function (item, index) {
         item.lastTime++
         item.remainTime = item.serverTime - item.lastTime
     })
+}
+
+function increment() {
+    time.value++
 }
 </script>
 
