@@ -346,7 +346,14 @@ function increment() {
             runningQueue.splice(i, 1)
         }
     }
-
+    //到时间退出队列
+    for (let i: number = 0; i < blockQueue.length; i++) {
+        if (blockQueue[i].remainTime <= 0) {
+            blockQueue[i].remainTime = 0
+            exitQueue.push(blockQueue[i])
+            blockQueue.splice(i, 1)
+        }
+    }
     //到了io时间就 block
     for (let i: number = 0; i < runningQueue.length; i++) {
         if (runningQueue[i].interTime == time.value) {
